@@ -57,7 +57,7 @@
             text-shadow: 0 0 20px rgba(168, 85, 247, 0.5);
         }
         details {
-            margin: 15px 0;
+            margin: 30px 0;
             background: linear-gradient(135deg, #7e22ce, #ec4899);
             border-radius: 20px;
             overflow: hidden;
@@ -86,7 +86,7 @@
             transform: rotate(180deg);
         }
         .content {
-            padding: 20px;
+            padding: 25px;
             background: rgba(0, 0, 0, 0.6);
             font-size: 1.2em;
         }
@@ -95,21 +95,101 @@
             text-decoration: none;
             font-weight: bold;
         }
-        .wheel-btn {
+
+        /* گردونه شانس - موقعیت متن دقیق‌تر + اندازه کوچکتر */
+        .wheel-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            margin: 40px auto;
+        }
+        .wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: conic-gradient(
+                #7e22ce 0% 10%,
+                #ec4899 10% 20%,
+                #4c1d95 20% 30%,
+                #db2777 30% 40%,
+                #6b21a8 40% 50%,
+                #a855f7 50% 60%,
+                #ec4899 60% 70%,
+                #7e22ce 70% 80%,
+                #db2777 80% 90%,
+                #4c1d95 90% 100%
+            );
+            box-shadow: 0 0 30px rgba(236, 72, 153, 0.8);
+            position: relative;
+            transition: transform 4.5s cubic-bezier(0.17, 0.67, 0.12, 0.99);
+            overflow: hidden;
+        }
+        .wheel::before {
+            content: '';
+            position: absolute;
+            top: 10%;
+            left: 10%;
+            width: 80%;
+            height: 80%;
+            background: #111;
+            border-radius: 50%;
+            z-index: 1;
+        }
+        .label {
+            position: absolute;
+            width: 30%;
+            height: 30%;
+            top: -20%;
+            left: 35%;
+            transform-origin: 50% 110%;
+            display: flex;
+            align-items: flex-start; /* متن نزدیک‌تر به لبه خارجی */
+            justify-content: center;
+            padding-top: 100px; /* <<< اینجا تغییر دادم – متن‌ها نزدیک‌تر به مرکز شدند */
+            font-size: 0.50em; /* متن کوچکتر و خواناتر */
+            font-weight: bold;
+            color: white;
+            text-shadow: 2px 2px 4px black;
+            z-index: 2;
+        }
+        .label span {
+            transform: rotate(90deg);
+            white-space: nowrap;
+        }
+        .arrow {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 25px solid transparent;
+            border-right: 25px solid transparent;
+            border-top: 50px solid #ec4899;
+            z-index: 10;
+            filter: drop-shadow(0 8px 15px black);
+        }
+        .spin-btn {
             background: #ec4899;
             color: white;
             border: none;
-            padding: 15px 30px;
-            font-size: 1.3em;
+            padding: 15px 40px;
+            font-size: 1.4em;
             border-radius: 50px;
             cursor: pointer;
             margin: 20px 0;
-            box-shadow: 0 5px 15px rgba(236, 72, 153, 0.5);
+            box-shadow: 0 5px 15px rgba(236, 72, 153, 0.6);
         }
-        #prize {
-            font-size: 1.5em;
-            margin: 20px 0;
-            min-height: 50px;
+        .spin-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        #result {
+            font-size: 1.8em;
+            margin: 30px 0;
+            min-height: 60px;
+            font-weight: bold;
+            color: #ec4899;
         }
     </style>
 </head>
@@ -163,8 +243,15 @@
             <summary><i class="fas fa-dice"></i> گردونه شانس</summary>
             <div class="content">
                 <p>شانستو امتحان کن و جایزه بگیر!</p>
-                <button class="wheel-btn" onclick="spinWheel()">بچرخانید 🎡</button>
-                <div id="prize"></div>
+
+                <!-- گردونه گرافیکی -->
+                <div class="wheel-container">
+                    <div class="arrow"></div>
+                    <div class="wheel" id="wheel"></div>
+                </div>
+
+                <button class="spin-btn" id="spinBtn">بچرخانید 🎡</button>
+                <div id="result"></div>
             </div>
         </details>
 
@@ -177,26 +264,61 @@
         </details>
     </div>
 
-    <!-- گردونه شانس -->
     <script>
+        // لیست جوایز
         const prizes = [
-            "اصلاح رایگان",
-            "پوچ",
-            "شستشو رایگان",
-            "تخفیف 10%",
-            "تخفیف 20٪ ",
-            "پوچ",
-            "پوچ",
-            "پوچ",
-            "پوچ",
-            "پوچ"
-            "پوچ"
-            "پوچ"
+            "پوچ 😅",
+            "پوچ 😅",
+            "پوچ 😅",
+            "پوچ 😅",
+            "پوچ 😅",
+            "تخفیف ۲۰٪ 🎉",
+            "تخفیف ۱۰٪ 🎉",
+            "شستشو رایگان 🧼",
+            "اصلاح رایگان 💈",
+            "تخفیف ۵۰٪ 🔥"
         ];
+
+        const wheel = document.getElementById('wheel');
+        const spinBtn = document.getElementById('spinBtn');
+        const result = document.getElementById('result');
+
+        let isSpinning = false;
+
+        // ساخت لیبل‌ها با موقعیت دقیق‌تر
+        const numSegments = prizes.length;
+        const anglePerSegment = 360 / numSegments;
+
+        prizes.forEach((prize, i) => {
+            const label = document.createElement('div');
+            label.classList.add('label');
+            label.style.transform = `rotate(${i * anglePerSegment + 20}deg)`;
+            label.innerHTML = `<span>${prize}</span>`;
+            wheel.appendChild(label);
+        });
+
+        // تابع چرخش
         function spinWheel() {
-            const random = Math.floor(Math.random() * prizes.length);
-            document.getElementById('prize').innerHTML = prizes[random];
+            if (isSpinning) return;
+            isSpinning = true;
+            spinBtn.disabled = true;
+            result.innerHTML = '';
+
+            const winningIndex = Math.floor(Math.random() * numSegments);
+            const extraSpins = Math.floor(Math.random() * 5) + 5;
+            const offsetToCenter = anglePerSegment / 2;
+            const spinDegrees = extraSpins * 360 + winningIndex * anglePerSegment + offsetToCenter;
+
+            wheel.style.transform = `rotate(-${spinDegrees}deg)`;
+
+            setTimeout(() => {
+                result.innerHTML = `جایزه شما: <br><strong>${prizes[winningIndex]}</strong>`;
+                isSpinning = false;
+                spinBtn.disabled = false;
+            }, 4700);
         }
+
+        spinBtn.addEventListener('click', spinWheel);
     </script>
 </body>
 </html>
