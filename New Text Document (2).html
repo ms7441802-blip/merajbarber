@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meraj Barber Shop</title>
+    <!-- فونت فارسی مدرن -->
+    <link href="https://fonts.googleapis.com/css2?family=Vazir:wght@700;900&display=swap" rel="stylesheet">
+    <!-- آیکون‌ها -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(to bottom, #000000, #000000);
+            color: white;
+            font-family: 'Vazir', sans-serif;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* لایه آسمان شب - ستاره‌ها با حرکت خیلی آهسته */
+        .night-sky {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: -2;
+        }
+        .stars {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: transparent url('https://s3-us-west-2.amazonaws.com/s.cdpn.io/1231630/stars.png') repeat top center;
+            opacity: 0.7;
+            animation: move-stars 500s linear infinite;
+        }
+        @keyframes move-stars {
+            from { background-position: 0 0; }
+            to { background-position: -10000px 5000px; }
+        }
+
+        .container {
+            max-width: 420px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+        header h1 {
+            font-size: 3em;
+            font-weight: 900;
+            background: linear-gradient(to right, #a855f7, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 40px 0;
+            text-shadow: 0 0 20px rgba(168, 85, 247, 0.5);
+        }
+        details {
+            margin: 15px 0;
+            background: linear-gradient(135deg, #7e22ce, #ec4899);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(24, 3, 43, 0.4);
+            transition: all 0.3s ease;
+        }
+        summary {
+            padding: 20px;
+            font-size: 1.4em;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+        summary i {
+            font-size: 1.6em;
+        }
+        summary::-webkit-details-marker { display: none; }
+        summary::after {
+            content: '▼';
+            margin-right: auto;
+            transition: transform 0.3s;
+        }
+        details[open] summary::after {
+            transform: rotate(180deg);
+        }
+        .content {
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.6);
+            font-size: 1.2em;
+        }
+        .content a {
+            color: #ec4899;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .wheel-btn {
+            background: #ec4899;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.3em;
+            border-radius: 50px;
+            cursor: pointer;
+            margin: 20px 0;
+            box-shadow: 0 5px 15px rgba(236, 72, 153, 0.5);
+        }
+        #prize {
+            font-size: 1.5em;
+            margin: 20px 0;
+            min-height: 50px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- لایه آسمان شب -->
+    <div class="night-sky">
+        <div class="stars"></div>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1>Meraj Barber Shop</h1>
+        </header>
+
+        <!-- گزینه‌ها -->
+        <details>
+            <summary><i class="fas fa-phone"></i> شماره تلفن</summary>
+            <div class="content">
+                <p>📞 شماره اول: <a href="tel:09359141223">09359141223</a></p>
+                <p>📞 شماره دوم: <a href="tel:09966318344">09966318344</a></p>
+                <p>برای رزرو نوبت زنگ بزنید!</p>
+            </div>
+        </details>
+
+        <details>
+            <summary><i class="fab fa-instagram"></i> پیج اینستاگرام</summary>
+            <div class="content">
+                <p>اینستاگرام: <a href="https://instagram.com/meraj.barbershop" target="_blank">@meraj.barbershop</a></p>
+                <p>عکس‌های قبل/بعد و مدل‌های جدید رو ببینید!</p>
+            </div>
+        </details>
+
+        <details>
+            <summary><i class="fab fa-telegram"></i> تلگرام</summary>
+            <div class="content">
+                <p>تلگرام: <a href="https://t.me/merajbarbershop1" target="_blank">@merajbarbershop1</a></p>
+                <p>برای مشاوره و رزرو سریع</p>
+            </div>
+        </details>
+
+        <details>
+            <summary><i class="fas fa-comments"></i> روبیکا</summary>
+            <div class="content">
+                <p>روبیکا: <a href="https://rubika.ir/merajbarbershop" target="_blank">rubika.ir/merajbarbershop</a></p>
+                <p>کانال/آیدی روبیکا ما</p>
+            </div>
+        </details>
+
+        <details>
+            <summary><i class="fas fa-dice"></i> گردونه شانس</summary>
+            <div class="content">
+                <p>شانستو امتحان کن و جایزه بگیر!</p>
+                <button class="wheel-btn" onclick="spinWheel()">بچرخانید 🎡</button>
+                <div id="prize"></div>
+            </div>
+        </details>
+
+        <details>
+            <summary><i class="fas fa-map-marker-alt"></i> آدرس و لوکیشن</summary>
+            <div class="content">
+                <p>آدرس : اردبیل خیابان بهشت زهرا روبه رو سه راه گلستان :</p>
+                <p><a href="https://nshn.ir/sbC_Bu05lcrh" target="_blank">نقشه رو باز کن 🗺️</a></p>
+            </div>
+        </details>
+    </div>
+
+    <!-- گردونه شانس -->
+    <script>
+        const prizes = [
+            "اصلاح رایگان",
+            "پوچ",
+            "شستشو رایگان",
+            "تخفیف 10%",
+            "تخفیف 20٪ ",
+            "پوچ",
+            "پوچ",
+            "پوچ",
+            "پوچ",
+            "پوچ"
+            "پوچ"
+            "پوچ"
+        ];
+        function spinWheel() {
+            const random = Math.floor(Math.random() * prizes.length);
+            document.getElementById('prize').innerHTML = prizes[random];
+        }
+    </script>
+</body>
+</html>
